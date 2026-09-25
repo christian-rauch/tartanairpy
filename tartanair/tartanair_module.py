@@ -358,21 +358,28 @@ class TartanAirModule():
         return False
 
     def compile_modality_and_cameraname(self, difficulties, modalities, camera_names, mute = False):
-        folderlist = []
+        '''
+        Return a dict mapping each difficulty to the list of '<modality>_<camera>' style folder
+        names that are valid for it (e.g. 'events' is only valid for 'easy'). The folder names
+        carry no path prefix: callers own the path structure they need to build on top of them,
+        e.g. '<env>/Data_<difficulty>/<folder>.zip' for archives, or '<traj_path>/<folder>' for
+        already-extracted trajectories where 'Data_<difficulty>/P0xx' is already part of the path.
+        '''
+        folderdict = {}
 
         for difficulty in difficulties:
-            diffstr = 'Data_' + difficulty + '/'
+            folderlist = []
 
             for mod in modalities:
                 if mod in self.cam_modalities:
                     for camname in camera_names:
                         folderstr =  mod + '_' + camname
-                        folderlist.append(diffstr + folderstr)
+                        folderlist.append(folderstr)
                 elif mod == 'flow':
                     for camname in camera_names:
                         if camname in self.flow_camlist:
                             folderstr =  mod + '_' + camname
-                            folderlist.append(diffstr + folderstr)
+                            folderlist.append(folderstr)
                         else:
                             if not mute:
                                 print_warn("Warn: flow modality doesn't have {}! We only have flow for {}".format(camname, self.flow_camlist))
@@ -384,23 +391,25 @@ class TartanAirModule():
                     for camname in camera_names:
                         if camname in self.event_camlist:
                             folderstr =  mod + '_' + camname
-                            folderlist.append(diffstr + folderstr)
+                            folderlist.append(folderstr)
                         else:
                             if not mute:
                                 print_warn("Warn: events modality doesn't have {}! We only have event for {}".format(camname, self.event_camlist))
 
                 elif mod == 'lidar' or mod == 'imu': # for lidar and imu
                     folderstr = mod
-                    folderlist.append(diffstr + folderstr)
+                    folderlist.append(folderstr)
                 elif mod == 'mp4' and "lcam_front" in camera_names:
                     folderstr =  mod + '_lcam_front'
-                    folderlist.append(diffstr + folderstr)
+                    folderlist.append(folderstr)
                 else:
                     if mod != "pose":
                         if not mute:
                             print_warn("Warn: note modality {} needs to be processed separately".format(mod))
 
-        return folderlist
+            folderdict[difficulty] = folderlist
+
+        return folderdict
 
     def compile_ground_modality_and_cameraname(self, modalities, camera_names):
         '''

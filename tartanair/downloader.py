@@ -204,9 +204,11 @@ class TartanAirDownloader(TartanAirModule):
         zipfilelist = []
         for env in envs:
             envstr = env + '/'
-            folderlist = self.compile_modality_and_cameraname(difficulties,modalities, camera_names, mute = mute)
-            zipfiles = [envstr + fl + '.zip' for fl in folderlist]
-            zipfilelist.extend(zipfiles)
+            folderdict = self.compile_modality_and_cameraname(difficulties, modalities, camera_names, mute = mute)
+            for difficulty, folderlist in folderdict.items():
+                diffstr = 'Data_' + difficulty + '/'
+                zipfiles = [envstr + diffstr + fl + '.zip' for fl in folderlist]
+                zipfilelist.extend(zipfiles)
 
         return zipfilelist
 

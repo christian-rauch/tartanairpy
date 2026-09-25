@@ -186,7 +186,10 @@ class TartanAirDataLoader(TartanAirModule):
 
         # figuring out the combination of modality and camera_name
         # folderlist consists all the folders that need to be load under each trajectory
-        folderlist = self.compile_modality_and_cameraname(difficulty, modality, camera_name)
+        # Local trajectory paths already contain 'Data_<difficulty>/P0xx', so folder names carry no difficulty prefix.
+        # Union across difficulties, since a trajectory's own path already pins it to one difficulty.
+        folderdict = self.compile_modality_and_cameraname(difficulty, modality, camera_name)
+        folderlist = list(dict.fromkeys(fl for folders in folderdict.values() for fl in folders))
         # find one folder that's not imu, because imu is not frame-based
         onemodfolder = None
         for fl in folderlist:
